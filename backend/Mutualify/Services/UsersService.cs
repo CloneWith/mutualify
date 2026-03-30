@@ -74,6 +74,7 @@ namespace Mutualify.Services
         {
             var users = await _databaseContext.Users.AsNoTracking()
                 .OrderByDescending(x => x.FollowerCount)
+                .ThenBy(x => x.Username)
                 .Skip(offset)
                 .Take(50)
                 .ToListAsync();
@@ -90,7 +91,7 @@ namespace Mutualify.Services
         public async Task<int> GetFollowerLeaderboardRanking(int userId)
         {
             return await _databaseContext.Database
-                .SqlQuery<int>($"select x.row_number as \"Value\" from (SELECT \"Id\", ROW_NUMBER() OVER(order by \"FollowerCount\" desc) FROM \"Users\") x WHERE x.\"Id\" = {userId}")
+                .SqlQuery<int>($"select x.row_number as \"Value\" from (SELECT \"Id\", ROW_NUMBER() OVER(order by \"FollowerCount\" desc, \"Username\" asc) FROM \"Users\") x WHERE x.\"Id\" = {userId}")
                 .SingleOrDefaultAsync();
         }
 
